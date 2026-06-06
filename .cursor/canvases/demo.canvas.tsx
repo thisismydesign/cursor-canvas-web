@@ -301,10 +301,30 @@ export default function DemoCanvas() {
       </Row>
 
       <Text tone="secondary">
-        A real Cursor canvas, rendered on the web. Everything below is one
-        component gallery exercising each shim module — how it works is at the
-        bottom.
+        A real Cursor canvas, rendered on the web. It imports only{' '}
+        <Code>cursor/canvas</Code>; a build-time alias swaps that module for a
+        Mantine-backed shim, so one file renders in the IDE and on GitHub Pages.
+        Everything below is one component gallery exercising each shim module.
       </Text>
+
+      {/* How it works (stepped explanation, not a callout) -------------- */}
+      <Section title="How it works">
+        <Grid columns={4} gap={12}>
+          {STEPS.map((step) => (
+            <Card key={step.n}>
+              <CardBody>
+                <Stack gap={6}>
+                  <Pill tone="info">{step.n}</Pill>
+                  <Text weight="semibold">{step.title}</Text>
+                  <Text size="small" tone="secondary">
+                    {step.desc}
+                  </Text>
+                </Stack>
+              </CardBody>
+            </Card>
+          ))}
+        </Grid>
+      </Section>
 
       {/* Stats ---------------------------------------------------------- */}
       <Grid columns={4} gap={12}>
@@ -644,25 +664,6 @@ export default function DemoCanvas() {
             ),
           )}
         </Row>
-      </Section>
-
-      {/* How it works (moved to the bottom, reframed as steps) ---------- */}
-      <Section title="How it works">
-        <Grid columns={4} gap={12}>
-          {STEPS.map((step) => (
-            <Card key={step.n}>
-              <CardBody>
-                <Stack gap={6}>
-                  <Pill tone="info">{step.n}</Pill>
-                  <Text weight="semibold">{step.title}</Text>
-                  <Text size="small" tone="secondary">
-                    {step.desc}
-                  </Text>
-                </Stack>
-              </CardBody>
-            </Card>
-          ))}
-        </Grid>
       </Section>
 
       <Divider />
