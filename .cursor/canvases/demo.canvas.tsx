@@ -1,9 +1,10 @@
 /**
  * Demo canvas — authored against `cursor/canvas` ONLY.
  *
- * Nothing in this file knows about Mantine, Vite, or GitHub Pages. The exact
- * same source would render inside the Cursor IDE; here the `cursor/canvas`
- * import is aliased to the Mantine shim at build time.
+ * This is the single source of truth. The web app imports it directly, and a
+ * copy is placed in the IDE-managed canvases folder so Cursor renders the same
+ * file. Nothing here knows about Mantine, Vite, or GitHub Pages: in the IDE
+ * `cursor/canvas` is the real SDK; in the web build it is aliased to the shim.
  */
 import {
   Callout,
@@ -24,7 +25,8 @@ import {
   Text,
   TextInput,
   useCanvasState,
-  type Tone,
+  type ChartSeries,
+  type StatTone,
 } from 'cursor/canvas';
 
 type RangeKey = '7d' | '30d' | '90d';
@@ -66,45 +68,53 @@ export default function DemoCanvas() {
   const total = sum(current);
   const prevTotal = sum(previous);
   const change = prevTotal === 0 ? 0 : ((total - prevTotal) / prevTotal) * 100;
-  const changeTone: Tone = change >= 0 ? 'positive' : 'negative';
+  const changeTone: StatTone = change >= 0 ? 'success' : 'danger';
 
-  const series = [
-    { name: 'Current', data: current, tone: 'accent' as Tone },
+  const series: ChartSeries[] = [
+    { name: 'Current', data: current, tone: 'info' },
     ...(compare
-      ? [{ name: 'Previous', data: previous, tone: 'neutral' as Tone }]
+      ? [{ name: 'Previous', data: previous, tone: 'neutral' as const }]
       : []),
   ];
 
   return (
-    <Stack gap="lg">
-      <Row>
+    <Stack gap={16}>
+      <Row gap={12}>
         <H1>Traffic Explorer</H1>
         <Spacer />
         <Pill tone="info">canvas PoC</Pill>
       </Row>
 
-      <Text dimmed>
-        A purpose-built demo canvas wired to a Mantine shim. State persists via
-        useCanvasState across reloads.
+      <Text tone="secondary">
+        A purpose-built demo canvas. State persists via useCanvasState across
+        reloads.
       </Text>
 
       <Card>
         <CardHeader>Controls</CardHeader>
         <CardBody>
-          <Stack gap="md">
-            <Grid columns={2}>
-              <Select
-                label="Range"
-                value={range}
-                onChange={(value) => setRange(value as RangeKey)}
-                options={RANGE_OPTIONS}
-              />
-              <TextInput
-                label="Project"
-                value={project}
-                onChange={setProject}
-                placeholder="project name"
-              />
+          <Stack gap={12}>
+            <Grid columns={2} gap={16}>
+              <Stack gap={6}>
+                <Text size="small" tone="secondary" weight="medium">
+                  Range
+                </Text>
+                <Select
+                  value={range}
+                  onChange={(value) => setRange(value as RangeKey)}
+                  options={RANGE_OPTIONS}
+                />
+              </Stack>
+              <Stack gap={6}>
+                <Text size="small" tone="secondary" weight="medium">
+                  Project
+                </Text>
+                <TextInput
+                  value={project}
+                  onChange={setProject}
+                  placeholder="project name"
+                />
+              </Stack>
             </Grid>
             <Checkbox
               label="Compare with previous period"
@@ -115,25 +125,26 @@ export default function DemoCanvas() {
         </CardBody>
       </Card>
 
-      <Grid columns={2}>
+      <Grid columns={2} gap={16}>
         <Card>
           <CardBody>
             <Stat
-              label={`Total visits (${range})`}
               value={total.toLocaleString()}
-              delta={`${change >= 0 ? '+' : ''}${change.toFixed(1)}% vs previous`}
+              label="Total visits"
               tone={changeTone}
             />
+            <Text size="small" tone="secondary" style={{ marginTop: 4 }}>
+              {change >= 0 ? '+' : ''}
+              {change.toFixed(1)}% vs previous period
+            </Text>
           </CardBody>
         </Card>
         <Card>
           <CardBody>
-            <Stat
-              label="Tracked project"
-              value={project || '—'}
-              delta={compare ? 'comparison on' : 'comparison off'}
-              tone={compare ? 'info' : 'neutral'}
-            />
+            <Stat value={project || '—'} label="Tracked project" />
+            <Text size="small" tone="secondary" style={{ marginTop: 4 }}>
+              {compare ? 'comparison on' : 'comparison off'}
+            </Text>
           </CardBody>
         </Card>
       </Grid>
@@ -145,7 +156,7 @@ export default function DemoCanvas() {
         </CardBody>
       </Card>
 
-      <Divider label="Notes" />
+      <Divider />
 
       <Callout title="How this works" tone="info">
         This canvas imports only from the cursor/canvas module. A Vite alias

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { screen } from '@testing-library/react';
 import { renderWithProvider } from '../../test/render';
-import DemoCanvas from '../../canvas/demo.canvas';
+import DemoCanvas from '../../../.cursor/canvases/demo.canvas';
 
 describe('DemoCanvas smoke render', () => {
   it('renders headings, controls and the callout without crashing', () => {

@@ -26,5 +26,5 @@
 
     "types": ["node", "vitest/globals", "@testing-library/jest-dom"]
   },
-  "include": ["src", "vite.config.ts"]
+  "include": ["src", ".cursor/canvases", "vite.config.ts"]
 }

@@ -1,5 +1,5 @@
 import { Container } from '@mantine/core';
-import DemoCanvas from './canvas/demo.canvas';
+import DemoCanvas from '../.cursor/canvases/demo.canvas';
 
 export function App() {
   return (

@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { reshapeLineChartData, type LineChartSeries } from 'cursor/canvas';
+import { reshapeLineChartData, type ChartSeries } from 'cursor/canvas';
 
 describe('reshapeLineChartData', () => {
   it('reshapes parallel categories + series into row objects', () => {
     const categories = ['Mon', 'Tue', 'Wed'];
-    const series: LineChartSeries[] = [
-      { name: 'Current', data: [10, 20, 30], tone: 'accent' },
+    const series: ChartSeries[] = [
+      { name: 'Current', data: [10, 20, 30], tone: 'info' },
       { name: 'Previous', data: [5, 15, 25], tone: 'neutral' },
     ];
 

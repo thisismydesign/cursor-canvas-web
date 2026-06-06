@@ -1,48 +1,77 @@
 /**
- * Token object returned by `useHostTheme()`.
+ * Tone -> color mapping and host-theme tokens for the shim.
  *
- * In a real Cursor canvas these tokens are supplied by the IDE host so that a
- * canvas matches the editor's theme. Here we provide a static, Mantine-aligned
- * approximation. Keep this shape stable: it is part of the shim's public
- * contract that canvases may read from.
+ * The real `cursor/canvas` SDK uses several semantic tone vocabularies that all
+ * draw from one shared palette so colors match across primitives (a
+ * `Stat tone="success"` and a `ChartSeries tone="success"` render the same
+ * green). We mirror that by mapping every tone name to a Mantine color.
  */
 
-export type Tone =
-  | 'neutral'
-  | 'accent'
-  | 'positive'
-  | 'negative'
+/** Union of every tone literal used across the SDK primitives we implement. */
+export type SemanticTone =
+  | 'success'
+  | 'danger'
   | 'warning'
-  | 'info';
+  | 'info'
+  | 'neutral'
+  | 'added'
+  | 'deleted'
+  | 'renamed';
 
+/** Maps a semantic tone to a Mantine color name (for `color`/`c` props). */
+export const toneColor: Record<SemanticTone, string> = {
+  success: 'green',
+  danger: 'red',
+  warning: 'orange',
+  info: 'blue',
+  neutral: 'gray',
+  added: 'green',
+  deleted: 'red',
+  renamed: 'blue',
+};
+
+/**
+ * Palette used to auto-assign colors to chart series that don't specify a
+ * `tone`, mirroring the SDK's "distinct color per series" behavior.
+ */
+export const chartPalette: string[] = [
+  'blue',
+  'grape',
+  'teal',
+  'orange',
+  'red',
+  'green',
+  'cyan',
+  'pink',
+];
+
+/**
+ * Minimal stand-in for the SDK's `CanvasHostTheme`. Only the documented
+ * semantic groups are provided; enough for canvases that read tokens for
+ * custom inline styles. Not pixel-identical to the IDE host theme.
+ */
 export interface HostTheme {
-  /** Hex color per semantic tone, used by Stat/Pill/Callout/LineChart. */
-  tone: Record<Tone, string>;
-  /** Spacing scale (px) mirroring Mantine's t-shirt sizes. */
-  space: { xs: number; sm: number; md: number; lg: number; xl: number };
-  /** Corner radii (px). */
-  radius: { sm: number; md: number; lg: number };
+  kind: 'light' | 'dark';
+  text: {
+    primary: string;
+    secondary: string;
+    tertiary: string;
+    quaternary: string;
+    link: string;
+  };
+  bg: { editor: string; chrome: string; elevated: string };
+  accent: { primary: string; control: string };
 }
 
 export const hostTheme: HostTheme = {
-  tone: {
-    neutral: '#868e96',
-    accent: '#4c6ef5',
-    positive: '#2f9e44',
-    negative: '#e03131',
-    warning: '#f08c00',
-    info: '#1098ad',
+  kind: 'light',
+  text: {
+    primary: '#1a1b1e',
+    secondary: '#5c5f66',
+    tertiary: '#868e96',
+    quaternary: '#adb5bd',
+    link: '#1c7ed6',
   },
-  space: { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 },
-  radius: { sm: 4, md: 8, lg: 16 },
-};
-
-/** Maps a semantic tone to its Mantine color name (for `color` props). */
-export const toneToMantineColor: Record<Tone, string> = {
-  neutral: 'gray',
-  accent: 'indigo',
-  positive: 'green',
-  negative: 'red',
-  warning: 'orange',
-  info: 'cyan',
+  bg: { editor: '#ffffff', chrome: '#f8f9fa', elevated: '#ffffff' },
+  accent: { primary: '#4c6ef5', control: '#4c6ef5' },
 };
