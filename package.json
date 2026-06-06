@@ -3,7 +3,7 @@
   "private": false,
   "version": "0.2.0",
   "type": "module",
-  "description": "Render Cursor canvases (cursor/canvas) as a web app via a Mantine-backed shim.",
+  "description": "Deploy your Cursor canvases to the web.",
   "license": "MIT",
   "keywords": [
     "cursor",
