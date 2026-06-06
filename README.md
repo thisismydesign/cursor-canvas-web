@@ -8,6 +8,8 @@ and on the web.
 
 **Live example:** <https://thisismydesign.github.io/cursor-canvas-web/>
 
+![The demo canvas rendered on the web](docs/demo-screenshot.png)
+
 ## How it works: a module shim, not a converter
 
 Your canvas stays a normal `.tsx` React component that imports only from
