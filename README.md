@@ -20,14 +20,20 @@ imports "cursor/canvas" -> tsconfig paths    -> Mantine core + @mantine/charts
 
 ## Layout
 
-| Path                         | Role                                              |
-| ---------------------------- | ------------------------------------------------- |
-| `src/canvas/demo.canvas.tsx` | The PoC canvas; imports **only** `cursor/canvas`. |
-| `src/shim/cursor-canvas.tsx` | Mantine implementation of the used exports.       |
-| `src/shim/theme.ts`          | Token object returned by `useHostTheme()`.        |
-| `src/main.tsx`               | Mounts React inside `MantineProvider`.            |
-| `vite.config.ts`             | `resolve.alias` for `cursor/canvas` + Pages base. |
-| `tsconfig.json`              | `paths` maps `cursor/canvas` to the shim.         |
+| Path                               | Role                                              |
+| ---------------------------------- | ------------------------------------------------- |
+| `.cursor/canvases/demo.canvas.tsx` | The PoC canvas; imports **only** `cursor/canvas`. |
+| `src/shim/cursor-canvas.tsx`       | Mantine implementation matching the real SDK API. |
+| `src/shim/theme.ts`                | Tone→color map + host-theme tokens.               |
+| `src/main.tsx`                     | Mounts React inside `MantineProvider`.            |
+| `vite.config.ts`                   | `resolve.alias` for `cursor/canvas` + Pages base. |
+| `tsconfig.json`                    | `paths` maps `cursor/canvas` to the shim.         |
+
+The canvas lives under `.cursor/canvases/` (the repo-owned, versioned source of
+truth) and the web app imports it directly. The same file is also copied into
+the IDE-managed canvases folder so Cursor renders the identical source. Because
+the shim mirrors the real SDK API, the canvas compiles and renders unchanged in
+both places.
 
 ## Getting started
 
@@ -83,8 +89,9 @@ To support more of the canvas API:
 
 1. Add the export to `src/shim/cursor-canvas.tsx`, implemented with Mantine.
 2. Keep prop shapes stable — they are the contract canvases rely on.
-3. If it carries semantic color, map `tone` via `toneToMantineColor` /
-   `hostTheme` in `src/shim/theme.ts`.
+3. If it carries semantic color, map `tone` via `toneColor` in
+   `src/shim/theme.ts`, using the SDK's tone vocabulary for that primitive
+   (`StatTone`, `PillTone`, `CalloutTone`, `ChartTone`).
 4. Add a test under `src/shim/__tests__/`.
 
 The only non-trivial adapter so far is `LineChart`, which reshapes parallel
