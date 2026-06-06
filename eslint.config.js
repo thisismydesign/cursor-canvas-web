@@ -26,9 +26,9 @@ export default tseslint.config(
     },
   },
   {
-    // The shim is intentionally a mixed module (components + hooks + helpers),
-    // so the Fast Refresh "components only" rule does not apply.
-    files: ['src/shim/**/*.{ts,tsx}'],
+    // The shim and the web runtime are intentionally mixed modules (components +
+    // hooks + helpers), so the Fast Refresh "components only" rule does not apply.
+    files: ['src/shim/**/*.{ts,tsx}', 'src/runtime/**/*.{ts,tsx}'],
     rules: {
       'react-refresh/only-export-components': 'off',
     },

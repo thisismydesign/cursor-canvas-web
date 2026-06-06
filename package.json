@@ -1,33 +1,68 @@
 {
-  "name": "cursor-canvas-web",
-  "private": true,
+  "name": "@thisismydesign/cursor-canvas-web",
+  "private": false,
   "version": "0.1.0",
   "type": "module",
+  "description": "Render Cursor canvases (cursor/canvas) as a web app via a Mantine-backed shim.",
+  "license": "MIT",
+  "keywords": [
+    "cursor",
+    "canvas",
+    "mantine",
+    "react",
+    "shim"
+  ],
   "packageManager": "pnpm@11.5.2",
   "engines": {
     "node": ">=22"
   },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/cursor-canvas.cjs",
+  "module": "./dist/cursor-canvas.js",
+  "types": "./dist/shim/cursor-canvas.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/shim/cursor-canvas.d.ts",
+      "import": "./dist/cursor-canvas.js",
+      "require": "./dist/cursor-canvas.cjs"
+    },
+    "./runtime": {
+      "types": "./dist/runtime/index.d.ts",
+      "import": "./dist/runtime.js",
+      "require": "./dist/runtime.cjs"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:lib": "vite build --config vite.lib.config.ts",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepublishOnly": "pnpm typecheck && pnpm test && pnpm build:lib"
   },
-  "dependencies": {
+  "peerDependencies": {
+    "@mantine/charts": "^7.17.0 || ^8.0.0",
+    "@mantine/core": "^7.17.0 || ^8.0.0",
+    "react": "^18.3.1 || ^19.0.0",
+    "react-dom": "^18.3.1 || ^19.0.0",
+    "recharts": "^2.15.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.20.0",
     "@mantine/charts": "^7.17.0",
     "@mantine/core": "^7.17.0",
     "@mantine/hooks": "^7.17.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "recharts": "^2.15.0"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.20.0",
+    "recharts": "^2.15.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@types/node": "^22.13.1",
@@ -43,6 +78,7 @@
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.24.0",
     "vite": "^6.1.0",
+    "vite-plugin-dts": "^5.0.2",
     "vitest": "^3.0.5"
   }
 }
