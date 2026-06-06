@@ -3,17 +3,21 @@ import { screen } from '@testing-library/react';
 import { renderWithProvider } from '../../test/render';
 import DemoCanvas from '../../../.cursor/canvases/demo.canvas';
 
-describe('DemoCanvas smoke render', () => {
-  it('renders headings, controls and the callout without crashing', () => {
+describe('DemoCanvas showcase', () => {
+  it('renders the intro, section headings and modules without crashing', () => {
     renderWithProvider(<DemoCanvas />);
 
     expect(
-      screen.getByRole('heading', { name: 'Traffic Explorer' }),
+      screen.getByRole('heading', { name: 'Cursor Canvas on the Web' }),
     ).toBeInTheDocument();
-    expect(screen.getByText('Range')).toBeInTheDocument();
-    expect(screen.getByText('How this works')).toBeInTheDocument();
+    expect(screen.getByText('How it works')).toBeInTheDocument();
     expect(
-      screen.getByLabelText('Compare with previous period'),
+      screen.getByRole('heading', { name: 'Typography & text' }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Graph layout (computeDAGLayout)' }),
+    ).toBeInTheDocument();
+    // A form control wired to useCanvasState is present.
+    expect(screen.getByLabelText('Verbose logging')).toBeInTheDocument();
   });
 });
