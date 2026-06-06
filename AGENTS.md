@@ -25,8 +25,10 @@ into the IDE-managed canvases folder so it renders in Cursor too.
   in the IDE — so match prop shapes and the real tone vocabularies
   (`StatTone`, `PillTone`, `CalloutTone`, `ChartTone`, `Text` tones). Do not
   invent exports (e.g. a generic `Tone`) that the real SDK lacks.
-- All adaptation lives in `src/shim/cursor-canvas.tsx`. Add new canvas API
-  surface there, implemented with Mantine, mirroring the SDK declarations.
+- All adaptation lives under `src/shim/` behind the `cursor-canvas.tsx` barrel
+  (split into `charts.tsx`, `diff.tsx`, `dag.ts`, `todo.tsx`, `theme.ts`,
+  `use-tokens.ts`). Add new canvas API surface there, implemented with Mantine,
+  mirroring the SDK declarations, and re-export it from the barrel.
 - Semantic colors go through `tone` → `src/shim/theme.ts` (`toneColor`), never
   hard-coded in components.
 - Two settings must stay in sync when changing the alias: `resolve.alias` in

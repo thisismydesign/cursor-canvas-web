@@ -102,14 +102,25 @@ example canvas to GitHub Pages — see [Example deployment](#example-deployment)
 
 ## Supported canvas API
 
-The shim implements the components and hooks most canvases use: `H1`, `H2`,
-`Text`, `Stack`, `Row`, `Spacer`, `Grid`, `Divider`,
-`Card`/`CardHeader`/`CardBody`, `Stat`, `Pill`, `Callout`, `Select`, `Checkbox`,
-`TextInput`, `LineChart`, plus `useCanvasState` and `useHostTheme`.
+The shim implements the **full public `cursor/canvas` surface**:
 
-Not yet covered: `DiffView`, `computeDAGLayout`, `TodoList`, `useCanvasAction`
-(IDE-only), and pixel-identical Cursor styling. The shim reproduces look and
-behavior, not the exact renderer.
+- Typography: `H1`, `H2`, `H3`, `Text`, `Code`, `Link`
+- Layout: `Stack`, `Row`, `Spacer`, `Grid`, `Divider`, `mergeStyle`
+- Surfaces: `Card`/`CardHeader`/`CardBody` (incl. `collapsible`)
+- Display & feedback: `Stat`, `Pill`, `Callout`, `Table`
+- Actions: `Button`, `IconButton`
+- Forms: `Select`, `Checkbox`, `Toggle`, `TextInput`, `TextArea`
+- Charts: `LineChart`, `BarChart`, `PieChart`
+- Rich: `Swatch`, `UsageBar`, `CollapsibleSection`, `TodoList`/`TodoListCard`,
+  `DiffView`/`DiffStats`, `computeDAGLayout`
+- Hooks: `useCanvasState`, `useHostTheme`, `useCanvasAction`
+- Tokens: `colorPalette`, `usageColorSequence`, `canvasTokens(Light)`,
+  `canvasPalette(Dark|Light)`
+
+Known fidelity gaps (behavior is reproduced, not the exact renderer):
+`DiffView` skips Shiki syntax highlighting (plain-text fallback), and
+`useCanvasAction` is a no-op on the web (IDE-only). Styling approximates the
+Cursor theme rather than matching it pixel-for-pixel.
 
 If your canvas needs an export the shim doesn't yet provide, see
 [Extending the shim](#extending-the-shim).
@@ -151,16 +162,16 @@ pnpm build          # typecheck + vite build -> dist/
 
 ### Layout
 
-| Path                               | Role                                              |
-| ---------------------------------- | ------------------------------------------------- |
+| Path                               | Role                                                  |
+| ---------------------------------- | ----------------------------------------------------- |
 | `.cursor/canvases/demo.canvas.tsx` | The example canvas; imports **only** `cursor/canvas`. |
-| `src/shim/cursor-canvas.tsx`       | Mantine implementation matching the real SDK API. |
-| `src/shim/theme.ts`                | Tone→color map + host-theme tokens.               |
-| `src/runtime/index.tsx`            | Web host glue (`CanvasRoot`, `mountCanvas`).      |
-| `src/main.tsx`                     | Mounts React inside `MantineProvider`.            |
-| `vite.config.ts`                   | `resolve.alias` for `cursor/canvas` + Pages base. |
-| `vite.lib.config.ts`               | Library build (shim + runtime) for publishing.    |
-| `tsconfig.json`                    | `paths` maps `cursor/canvas` to the shim.         |
+| `src/shim/cursor-canvas.tsx`       | Mantine implementation matching the real SDK API.     |
+| `src/shim/theme.ts`                | Tone→color map + host-theme tokens.                   |
+| `src/runtime/index.tsx`            | Web host glue (`CanvasRoot`, `mountCanvas`).          |
+| `src/main.tsx`                     | Mounts React inside `MantineProvider`.                |
+| `vite.config.ts`                   | `resolve.alias` for `cursor/canvas` + Pages base.     |
+| `vite.lib.config.ts`               | Library build (shim + runtime) for publishing.        |
+| `tsconfig.json`                    | `paths` maps `cursor/canvas` to the shim.             |
 
 ### Extending the shim
 
