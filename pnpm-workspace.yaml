@@ -1,0 +1,9 @@
+# Supply-chain hardening: refuse to install any version published less than
+# 24h ago (default in pnpm 11; set explicitly to document the policy and to
+# protect pnpm 10.16+ clones). Value is in minutes.
+minimumReleaseAge: 1440
+
+# Build scripts are blocked unless allowlisted here. esbuild needs its
+# postinstall to fetch its native binary for Vite.
+allowBuilds:
+  esbuild: true
