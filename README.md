@@ -1,124 +1,51 @@
-# Mantine Canvas PoC
+# cursor-canvas-web
 
-Prove that a file written as a real **Cursor canvas** (importing only from
-`cursor/canvas`) can be hosted on **GitHub Pages** by swapping the
-`cursor/canvas` module for a **Mantine-backed shim** at build time — with **no
-changes to the canvas source**.
+Deploy your **Cursor canvases** to the web — unchanged. A canvas written as a
+real Cursor canvas (importing only from `cursor/canvas`) renders on the web by
+swapping the `cursor/canvas` module for a **Mantine-backed shim** at build time.
+No converter, no fork of your source: the same `.tsx` renders in the Cursor IDE
+and on the web.
 
-## The idea: a module shim, not a converter
+**Live example:** <https://thisismydesign.github.io/cursor-canvas-web/>
 
-The canvas stays a normal `.tsx` React component. The only bridge is one module
-that re-exports the `cursor/canvas` API implemented with Mantine. A Vite alias
-(and a matching tsconfig path) resolves `cursor/canvas` to that shim. There is
-no parser, AST, or registry.
+## How it works: a module shim, not a converter
+
+Your canvas stays a normal `.tsx` React component that imports only from
+`cursor/canvas`. The only bridge is one module that re-exports that API
+implemented with Mantine. A Vite alias (plus a matching tsconfig path) resolves
+`cursor/canvas` to the shim at build time. There is no parser, AST, or registry,
+and your canvas source never changes.
 
 ```
-demo.canvas.tsx           Vite alias +          src/shim/cursor-canvas.tsx
+your.canvas.tsx          Vite alias +          @thisismydesign/cursor-canvas-web
 imports "cursor/canvas" -> tsconfig paths    -> Mantine core + @mantine/charts
-                                             -> Vite build -> GitHub Pages
+                                             -> Vite build -> any static host
 ```
 
-## Layout
+Because the shim mirrors the real SDK API, a canvas that builds here also
+compiles and renders unchanged in the Cursor IDE.
 
-| Path                               | Role                                              |
-| ---------------------------------- | ------------------------------------------------- |
-| `.cursor/canvases/demo.canvas.tsx` | The PoC canvas; imports **only** `cursor/canvas`. |
-| `src/shim/cursor-canvas.tsx`       | Mantine implementation matching the real SDK API. |
-| `src/shim/theme.ts`                | Tone→color map + host-theme tokens.               |
-| `src/runtime/index.tsx`            | Web host glue (`CanvasRoot`, `mountCanvas`).      |
-| `src/main.tsx`                     | Mounts React inside `MantineProvider`.            |
-| `vite.config.ts`                   | `resolve.alias` for `cursor/canvas` + Pages base. |
-| `vite.lib.config.ts`               | Library build (shim + runtime) for publishing.    |
-| `tsconfig.json`                    | `paths` maps `cursor/canvas` to the shim.         |
-
-The canvas lives under `.cursor/canvases/` (the repo-owned, versioned source of
-truth) and the web app imports it directly. The same file is also copied into
-the IDE-managed canvases folder so Cursor renders the identical source. Because
-the shim mirrors the real SDK API, the canvas compiles and renders unchanged in
-both places.
-
-## Getting started
-
-Tool versions (Node, pnpm) are pinned in [`.tool-versions`](./.tool-versions)
-and managed with [mise](https://mise.jdx.dev/).
+## Install
 
 ```bash
-mise install        # install Node + pnpm from .tool-versions
-pnpm install
-pnpm dev            # start the dev server
+pnpm add @thisismydesign/cursor-canvas-web
+# peer deps your app must supply:
+pnpm add react react-dom @mantine/core @mantine/charts recharts
 ```
 
-Other scripts:
-
-```bash
-pnpm typecheck      # tsc --noEmit (validation gate)
-pnpm lint           # eslint
-pnpm test           # vitest run
-pnpm build          # typecheck + vite build -> dist/
-```
-
-## How `cursor/canvas` resolves to the shim
-
-Two coordinated settings, runtime and types:
-
-```ts
-// vite.config.ts — runtime
-resolve: {
-  alias: {
-    'cursor/canvas': '/src/shim/cursor-canvas.tsx',
-  },
-}
-```
-
-```jsonc
-// tsconfig.json — types
-"paths": { "cursor/canvas": ["./src/shim/cursor-canvas.tsx"] }
-```
-
-For PoC simplicity the shim's own types are the contract. A stricter future
-option is to vendor the official `cursor/canvas` `.d.ts` files as the type
-source and alias only the runtime, guaranteeing the shim stays API-compatible
-with the real SDK.
-
-## Extending the shim
-
-The PoC implements the subset the demo uses: `H1`, `H2`, `Text`, `Stack`,
-`Row`, `Spacer`, `Grid`, `Divider`, `Card`/`CardHeader`/`CardBody`, `Stat`,
-`Pill`, `Callout`, `Select`, `Checkbox`, `TextInput`, `LineChart`, plus
-`useCanvasState` and `useHostTheme`.
-
-To support more of the canvas API:
-
-1. Add the export to `src/shim/cursor-canvas.tsx`, implemented with Mantine.
-2. Keep prop shapes stable — they are the contract canvases rely on.
-3. If it carries semantic color, map `tone` via `toneColor` in
-   `src/shim/theme.ts`, using the SDK's tone vocabulary for that primitive
-   (`StatTone`, `PillTone`, `CalloutTone`, `ChartTone`).
-4. Add a test under `src/shim/__tests__/`.
-
-The only non-trivial adapter so far is `LineChart`, which reshapes parallel
-`categories` + `series[]` arrays into Mantine's array-of-row-objects `data` and
-maps each series `tone` to a color (`reshapeLineChartData`).
-
-## Use it in another project
-
-The shim is published as a library so other apps can render their own canvases
-on the web. Two entry points:
+The package ships two entry points:
 
 | Import                                      | Provides                                      |
 | ------------------------------------------- | --------------------------------------------- |
 | `@thisismydesign/cursor-canvas-web`         | The `cursor/canvas` shim (components, hooks). |
 | `@thisismydesign/cursor-canvas-web/runtime` | `CanvasRoot` + `mountCanvas` web host glue.   |
 
-```bash
-pnpm add @thisismydesign/cursor-canvas-web
-# peer deps the host app must supply itself:
-pnpm add react react-dom @mantine/core @mantine/charts recharts
-```
+## Use it in your project
 
-Point the bare `cursor/canvas` specifier at the package so your canvas sources
-stay pure (the same two-setting alias this repo uses, but resolving to the
-published package instead of a local file):
+### 1. Point `cursor/canvas` at the package
+
+Two coordinated settings — runtime (Vite) and types (tsconfig) — keep your
+canvas sources pure while resolving the bare specifier to the shim:
 
 ```ts
 // vite.config.ts — runtime
@@ -136,7 +63,9 @@ resolve: {
 }
 ```
 
-Mount a canvas with the runtime helper (it wraps `MantineProvider` for you):
+### 2. Mount your canvas
+
+Use the `mountCanvas` helper (it wraps `MantineProvider` for you):
 
 ```tsx
 // src/main.tsx
@@ -165,7 +94,92 @@ createRoot(el).render(
 The canvas file itself never changes — it still imports only from
 `cursor/canvas`, so it renders identically in the Cursor IDE.
 
-## Publishing
+### 3. Deploy
+
+The result is a plain Vite app, so `pnpm build` produces a static `dist/` you
+can host anywhere (GitHub Pages, Netlify, Vercel, S3, …). This repo deploys its
+example canvas to GitHub Pages — see [Example deployment](#example-deployment).
+
+## Supported canvas API
+
+The shim implements the components and hooks most canvases use: `H1`, `H2`,
+`Text`, `Stack`, `Row`, `Spacer`, `Grid`, `Divider`,
+`Card`/`CardHeader`/`CardBody`, `Stat`, `Pill`, `Callout`, `Select`, `Checkbox`,
+`TextInput`, `LineChart`, plus `useCanvasState` and `useHostTheme`.
+
+Not yet covered: `DiffView`, `computeDAGLayout`, `TodoList`, `useCanvasAction`
+(IDE-only), and pixel-identical Cursor styling. The shim reproduces look and
+behavior, not the exact renderer.
+
+If your canvas needs an export the shim doesn't yet provide, see
+[Extending the shim](#extending-the-shim).
+
+## Example deployment
+
+This repo is itself a working example. The canvas at
+[`.cursor/canvases/demo.canvas.tsx`](./.cursor/canvases/demo.canvas.tsx) is the
+single source of truth: the web app imports it directly, and the same file is
+copied into Cursor's managed canvases folder so it renders in the IDE too.
+
+The deployed result lives at
+<https://thisismydesign.github.io/cursor-canvas-web/>.
+
+`deploy.yml` builds and publishes to GitHub Pages on push to `main` via
+`configure-pages` / `upload-pages-artifact` / `deploy-pages`. The Vite `base`
+defaults to `/cursor-canvas-web/` (project Page); override it with the
+`BASE_PATH` env var if you deploy elsewhere.
+
+## Develop this repo
+
+Tool versions (Node, pnpm) are pinned in [`.tool-versions`](./.tool-versions)
+and managed with [mise](https://mise.jdx.dev/).
+
+```bash
+mise install        # install Node + pnpm from .tool-versions
+pnpm install
+pnpm dev            # start the dev server
+```
+
+Validation gate:
+
+```bash
+pnpm typecheck      # tsc --noEmit, strict
+pnpm lint           # eslint
+pnpm test           # vitest run
+pnpm build          # typecheck + vite build -> dist/
+```
+
+### Layout
+
+| Path                               | Role                                              |
+| ---------------------------------- | ------------------------------------------------- |
+| `.cursor/canvases/demo.canvas.tsx` | The example canvas; imports **only** `cursor/canvas`. |
+| `src/shim/cursor-canvas.tsx`       | Mantine implementation matching the real SDK API. |
+| `src/shim/theme.ts`                | Tone→color map + host-theme tokens.               |
+| `src/runtime/index.tsx`            | Web host glue (`CanvasRoot`, `mountCanvas`).      |
+| `src/main.tsx`                     | Mounts React inside `MantineProvider`.            |
+| `vite.config.ts`                   | `resolve.alias` for `cursor/canvas` + Pages base. |
+| `vite.lib.config.ts`               | Library build (shim + runtime) for publishing.    |
+| `tsconfig.json`                    | `paths` maps `cursor/canvas` to the shim.         |
+
+### Extending the shim
+
+To support more of the canvas API:
+
+1. Add the export to `src/shim/cursor-canvas.tsx`, implemented with Mantine.
+2. Keep prop shapes stable — they are the contract canvases rely on, and they
+   must match the official SDK declarations so canvases render unchanged in the
+   IDE.
+3. If it carries semantic color, map `tone` via `toneColor` in
+   `src/shim/theme.ts`, using the SDK's tone vocabulary for that primitive
+   (`StatTone`, `PillTone`, `CalloutTone`, `ChartTone`).
+4. Add a test under `src/shim/__tests__/`.
+
+The only non-trivial adapter so far is `LineChart`, which reshapes parallel
+`categories` + `series[]` arrays into Mantine's array-of-row-objects `data` and
+maps each series `tone` to a color (`reshapeLineChartData`).
+
+### Publishing
 
 `prepublishOnly` runs `typecheck`, `test`, and `build:lib` automatically, so a
 publish only needs:
@@ -178,16 +192,3 @@ npm publish --access public
 `--access public` is required for the scoped package. Publishing needs 2FA
 (WebAuthn/passkey) on your npm account; `npm publish` opens a browser to
 complete the passkey prompt.
-
-## Deployment
-
-`deploy.yml` builds and publishes to GitHub Pages on push to `main` via
-`configure-pages` / `upload-pages-artifact` / `deploy-pages`. The Vite `base`
-defaults to `/cursor-canvas-web/` (project Page); override with the `BASE_PATH`
-env var if the repo is renamed.
-
-## Out of scope (PoC)
-
-Full coverage of all canvas components; `DiffView`, `computeDAGLayout`,
-`TodoList`, `useCanvasAction` (IDE-only); pixel-identical Cursor styling. The
-shim reproduces look and behavior, not the exact renderer.
