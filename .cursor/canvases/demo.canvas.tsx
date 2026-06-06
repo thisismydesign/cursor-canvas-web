@@ -4,9 +4,9 @@
  * This is the single source of truth: the web app imports it directly and the
  * same file is copied into the IDE-managed canvases folder, so Cursor and
  * GitHub Pages render identical source. It doubles as living documentation —
- * a short explanation of the project followed by a gallery of every shim
- * module. In the IDE `cursor/canvas` is the real SDK; in the web build it is
- * aliased to a Mantine-backed shim.
+ * a gallery of every shim module, leading with the visuals and ending with a
+ * short "how it works". In the IDE `cursor/canvas` is the real SDK; in the web
+ * build it is aliased to a Mantine-backed shim.
  */
 import {
   BarChart,
@@ -121,6 +121,29 @@ const DIFF_LINES: DiffLineData[] = [
   },
   { type: 'unchanged', content: '  return <H1>Hello</H1>;', lineNumber: 4 },
   { type: 'unchanged', content: '}', lineNumber: 5 },
+];
+
+const STEPS: { n: string; title: string; desc: string }[] = [
+  {
+    n: '1',
+    title: 'Author',
+    desc: 'Write a .canvas.tsx that imports only cursor/canvas.',
+  },
+  {
+    n: '2',
+    title: 'Alias',
+    desc: 'Vite + tsconfig redirect cursor/canvas at build time.',
+  },
+  {
+    n: '3',
+    title: 'Shim',
+    desc: 'Mantine implements the same API, props, and tones.',
+  },
+  {
+    n: '4',
+    title: 'Deploy',
+    desc: 'Static Vite build published to GitHub Pages.',
+  },
 ];
 
 const DAG = computeDAGLayout({
@@ -257,7 +280,7 @@ export default function DemoCanvas() {
 
   return (
     <Stack gap={20}>
-      {/* Intro ---------------------------------------------------------- */}
+      {/* Header --------------------------------------------------------- */}
       <Row gap={12}>
         <H1>Cursor Canvas on the Web</H1>
         <Spacer />
@@ -278,17 +301,10 @@ export default function DemoCanvas() {
       </Row>
 
       <Text tone="secondary">
-        This page is a real Cursor canvas. It imports only from{' '}
-        <Code>cursor/canvas</Code>; a Vite alias swaps that module for a
-        Mantine-backed shim at build time, so the same source renders in the IDE
-        and on <Link href="https://pages.github.com/">GitHub Pages</Link>.
-        Everything below is one component gallery exercising each shim module.
+        A real Cursor canvas, rendered on the web. Everything below is one
+        component gallery exercising each shim module — how it works is at the
+        bottom.
       </Text>
-
-      <Callout tone="info" title="How it works" icon={<span>i</span>}>
-        No converter, parser, or registry — just a module shim plus a build-time
-        alias. The shim mirrors the real SDK API, so canvases stay portable.
-      </Callout>
 
       {/* Stats ---------------------------------------------------------- */}
       <Grid columns={4} gap={12}>
@@ -314,108 +330,7 @@ export default function DemoCanvas() {
         </Card>
       </Grid>
 
-      {/* Typography ----------------------------------------------------- */}
-      <Section title="Typography & text">
-        <Card>
-          <CardBody>
-            <Stack gap={6}>
-              <H3>Heading level 3</H3>
-              <Text>Primary body text in the default tone and weight.</Text>
-              <Text tone="secondary">Secondary — supporting copy.</Text>
-              <Text tone="tertiary" size="small">
-                Tertiary, small — captions and hints.
-              </Text>
-              <Text weight="semibold">Semibold emphasis.</Text>
-              <Text italic tone="secondary">
-                Italic remark.
-              </Text>
-              <Row gap={6} wrap>
-                <Pill tone="success">success</Pill>
-                <Pill tone="warning">warning</Pill>
-                <Pill tone="info" leadingContent={<Swatch color="blue" />}>
-                  with swatch
-                </Pill>
-                <Pill tone="neutral" keyboardHint="⇧Tab">
-                  hint
-                </Pill>
-              </Row>
-            </Stack>
-          </CardBody>
-        </Card>
-      </Section>
-
-      {/* Forms ---------------------------------------------------------- */}
-      <Section title="Forms (state persists via useCanvasState)">
-        <Card>
-          <CardBody>
-            <Stack gap={12}>
-              <Grid columns={2} gap={16}>
-                <Stack gap={6}>
-                  <Text size="small" tone="secondary" weight="medium">
-                    Environment
-                  </Text>
-                  <Select
-                    value={env}
-                    onChange={setEnv}
-                    options={[
-                      { value: 'production', label: 'Production' },
-                      { value: 'staging', label: 'Staging' },
-                      { value: 'dev', label: 'Development' },
-                    ]}
-                  />
-                </Stack>
-                <Stack gap={6}>
-                  <Text size="small" tone="secondary" weight="medium">
-                    Filter
-                  </Text>
-                  <TextInput
-                    value={filter}
-                    onChange={setFilter}
-                    placeholder="service name…"
-                  />
-                </Stack>
-              </Grid>
-              <Stack gap={6}>
-                <Text size="small" tone="secondary" weight="medium">
-                  Release note
-                </Text>
-                <TextArea
-                  value={note}
-                  onChange={setNote}
-                  placeholder="What changed…"
-                  rows={2}
-                />
-              </Stack>
-              <Row gap={16} wrap>
-                <Checkbox
-                  label="Verbose logging"
-                  checked={verbose}
-                  onChange={setVerbose}
-                />
-                <Row gap={8}>
-                  <Text size="small" tone="secondary">
-                    Live updates
-                  </Text>
-                  <Toggle checked={live} onChange={setLive} />
-                </Row>
-                <Spacer />
-                <Button variant="ghost">Reset</Button>
-                <Button variant="secondary">Preview</Button>
-                <Button
-                  variant="primary"
-                  onClick={() =>
-                    dispatch({ type: 'openAgent', agentId: 'demo' })
-                  }
-                >
-                  Deploy
-                </Button>
-              </Row>
-            </Stack>
-          </CardBody>
-        </Card>
-      </Section>
-
-      {/* Charts --------------------------------------------------------- */}
+      {/* Charts, tables & context --------------------------------------- */}
       <Section title="Charts, tables & context">
         <Stack gap={12}>
           <Row gap={8} wrap>
@@ -524,6 +439,33 @@ export default function DemoCanvas() {
         </Stack>
       </Section>
 
+      {/* Graph ---------------------------------------------------------- */}
+      <Section title="Graph layout (computeDAGLayout)">
+        <Card>
+          <CardBody>
+            <Stack gap={8}>
+              <Text size="small" tone="secondary">
+                Pure layout math; rendering is the canvas's job. The dashed
+                accent edge is a detected back-edge (cycle).
+              </Text>
+              <DagDiagram />
+            </Stack>
+          </CardBody>
+        </Card>
+      </Section>
+
+      {/* Diff ----------------------------------------------------------- */}
+      <Section title="Diff">
+        <Card collapsible defaultOpen>
+          <CardHeader trailing={<DiffStats additions={1} deletions={1} />}>
+            demo.canvas.tsx
+          </CardHeader>
+          <CardBody style={{ padding: 0 }}>
+            <DiffView path="demo.canvas.tsx" lines={DIFF_LINES} />
+          </CardBody>
+        </Card>
+      </Section>
+
       {/* Disclosure & tasks -------------------------------------------- */}
       <Section title="Disclosure & tasks">
         <Grid columns={2} gap={16}>
@@ -550,11 +492,7 @@ export default function DemoCanvas() {
                 </Text>
               </CollapsibleSection>
             </CollapsibleSection>
-            <TodoListCard
-              todos={TODOS}
-              dimmedTodoIds={dimmed}
-              defaultExpanded
-            />
+            <TodoListCard todos={TODOS} dimmedTodoIds={dimmed} defaultExpanded />
           </Stack>
           <Card>
             <CardHeader>TodoList (selectable)</CardHeader>
@@ -571,28 +509,102 @@ export default function DemoCanvas() {
         </Grid>
       </Section>
 
-      {/* Diff ----------------------------------------------------------- */}
-      <Section title="Diff">
-        <Card collapsible defaultOpen>
-          <CardHeader trailing={<DiffStats additions={1} deletions={1} />}>
-            demo.canvas.tsx
-          </CardHeader>
-          <CardBody style={{ padding: 0 }}>
-            <DiffView path="demo.canvas.tsx" lines={DIFF_LINES} />
+      {/* Typography ----------------------------------------------------- */}
+      <Section title="Typography & text">
+        <Card>
+          <CardBody>
+            <Stack gap={6}>
+              <H3>Heading level 3</H3>
+              <Text>Primary body text in the default tone and weight.</Text>
+              <Text tone="secondary">Secondary — supporting copy.</Text>
+              <Text tone="tertiary" size="small">
+                Tertiary, small — captions and hints.
+              </Text>
+              <Text weight="semibold">Semibold emphasis.</Text>
+              <Text italic tone="secondary">
+                Italic remark.
+              </Text>
+              <Row gap={6} wrap>
+                <Pill tone="success">success</Pill>
+                <Pill tone="warning">warning</Pill>
+                <Pill tone="info" leadingContent={<Swatch color="blue" />}>
+                  with swatch
+                </Pill>
+                <Pill tone="neutral" keyboardHint="⇧Tab">
+                  hint
+                </Pill>
+              </Row>
+            </Stack>
           </CardBody>
         </Card>
       </Section>
 
-      {/* Graph ---------------------------------------------------------- */}
-      <Section title="Graph layout (computeDAGLayout)">
+      {/* Forms ---------------------------------------------------------- */}
+      <Section title="Forms (state persists via useCanvasState)">
         <Card>
           <CardBody>
-            <Stack gap={8}>
-              <Text size="small" tone="secondary">
-                Pure layout math; rendering is the canvas's job. The dashed
-                accent edge is a detected back-edge (cycle).
-              </Text>
-              <DagDiagram />
+            <Stack gap={12}>
+              <Grid columns={2} gap={16}>
+                <Stack gap={6}>
+                  <Text size="small" tone="secondary" weight="medium">
+                    Environment
+                  </Text>
+                  <Select
+                    value={env}
+                    onChange={setEnv}
+                    options={[
+                      { value: 'production', label: 'Production' },
+                      { value: 'staging', label: 'Staging' },
+                      { value: 'dev', label: 'Development' },
+                    ]}
+                  />
+                </Stack>
+                <Stack gap={6}>
+                  <Text size="small" tone="secondary" weight="medium">
+                    Filter
+                  </Text>
+                  <TextInput
+                    value={filter}
+                    onChange={setFilter}
+                    placeholder="service name…"
+                  />
+                </Stack>
+              </Grid>
+              <Stack gap={6}>
+                <Text size="small" tone="secondary" weight="medium">
+                  Release note
+                </Text>
+                <TextArea
+                  value={note}
+                  onChange={setNote}
+                  placeholder="What changed…"
+                  rows={2}
+                />
+              </Stack>
+              <Row gap={16} wrap>
+                <Checkbox
+                  label="Verbose logging"
+                  checked={verbose}
+                  onChange={setVerbose}
+                />
+                <Row gap={8}>
+                  <Text size="small" tone="secondary">
+                    Live updates
+                  </Text>
+                  <Toggle checked={live} onChange={setLive} />
+                </Row>
+                <Spacer />
+                <Button variant="ghost">Reset</Button>
+                <Button variant="secondary">Preview</Button>
+                <Button
+                  variant="primary"
+                  onClick={() =>
+                    dispatch({ type: 'openAgent', agentId: 'demo' })
+                  }
+                >
+                  Deploy
+                </Button>
+              </Row>
             </Stack>
           </CardBody>
         </Card>
@@ -634,10 +646,31 @@ export default function DemoCanvas() {
         </Row>
       </Section>
 
+      {/* How it works (moved to the bottom, reframed as steps) ---------- */}
+      <Section title="How it works">
+        <Grid columns={4} gap={12}>
+          {STEPS.map((step) => (
+            <Card key={step.n}>
+              <CardBody>
+                <Stack gap={6}>
+                  <Pill tone="info">{step.n}</Pill>
+                  <Text weight="semibold">{step.title}</Text>
+                  <Text size="small" tone="secondary">
+                    {step.desc}
+                  </Text>
+                </Stack>
+              </CardBody>
+            </Card>
+          ))}
+        </Grid>
+      </Section>
+
       <Divider />
       <Text size="small" tone="tertiary">
-        Colors from <Code>useHostTheme()</Code> tokens · category hues from{' '}
-        <Code>colorPalette</Code> ({Object.keys(colorPalette).length} hues) ·
+        Imports only <Code>cursor/canvas</Code> · colors from{' '}
+        <Code>useHostTheme()</Code> · category hues from <Code>colorPalette</Code>{' '}
+        ({Object.keys(colorPalette).length} hues) ·{' '}
+        <Link href="https://pages.github.com/">deployed to GitHub Pages</Link> ·
         one file renders in both the IDE and the browser.
       </Text>
     </Stack>
