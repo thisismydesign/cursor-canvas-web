@@ -1,6 +1,6 @@
 # cursor-canvas-web
 
-Deploy your **Cursor canvases** to the web.
+Deploy **Cursor canvases** to the web.
 
 A Cursor canvas is a `.tsx` that imports only from `cursor/canvas`. That module isn't an installable package; it's provided by the Cursor IDE at compile time, so a canvas can't build or render anywhere outside the IDE. This project is an open, **Mantine-backed shim** of `cursor/canvas`. A build-time Vite alias swaps the module for the shim, so the same `.tsx` renders in the Cursor IDE and on the web. No converter, no fork of your source.
 
