@@ -48,8 +48,11 @@ import { useHostTheme } from './use-tokens';
 
 /* --------------------------------------------------------------- re-exports */
 
-export { useState } from 'react';
-export type { CSSProperties } from 'react';
+// React authoring utilities, mirroring the real SDK's `index.d.ts` so a canvas
+// needs a single `cursor/canvas` import. React is a peer dep / external in the
+// lib build, so these resolve to the consumer's own React instance.
+export type { CSSProperties, RefObject } from 'react';
+export { useEffect, useMemo, useRef, useState } from 'react';
 export {
   canvasPaletteDark,
   canvasPaletteLight,
