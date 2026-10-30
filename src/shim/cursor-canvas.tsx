@@ -48,6 +48,8 @@ import { useHostTheme } from './use-tokens';
 
 /* --------------------------------------------------------------- re-exports */
 
+export { useState } from 'react';
+export type { CSSProperties } from 'react';
 export {
   canvasPaletteDark,
   canvasPaletteLight,
