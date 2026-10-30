@@ -44,7 +44,6 @@ import {
   TodoList,
   TodoListCard,
   UsageBar,
-  colorPalette,
   computeDAGLayout,
   mergeStyle,
   useCanvasAction,
@@ -512,7 +511,11 @@ export default function DemoCanvas() {
                 </Text>
               </CollapsibleSection>
             </CollapsibleSection>
-            <TodoListCard todos={TODOS} dimmedTodoIds={dimmed} defaultExpanded />
+            <TodoListCard
+              todos={TODOS}
+              dimmedTodoIds={dimmed}
+              defaultExpanded
+            />
           </Stack>
           <Card>
             <CardHeader>TodoList (selectable)</CardHeader>
@@ -669,10 +672,10 @@ export default function DemoCanvas() {
       <Divider />
       <Text size="small" tone="tertiary">
         Imports only <Code>cursor/canvas</Code> · colors from{' '}
-        <Code>useHostTheme()</Code> · category hues from <Code>colorPalette</Code>{' '}
-        ({Object.keys(colorPalette).length} hues) ·{' '}
-        <Link href="https://pages.github.com/">deployed to GitHub Pages</Link> ·
-        one file renders in both the IDE and the browser.
+        <Code>useHostTheme()</Code> · category hues from{' '}
+        <Code>theme.category</Code> ({Object.keys(theme.category).length} hues)
+        · <Link href="https://pages.github.com/">deployed to GitHub Pages</Link>{' '}
+        · one file renders in both the IDE and the browser.
       </Text>
     </Stack>
   );
