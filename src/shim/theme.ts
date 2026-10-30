@@ -88,7 +88,10 @@ export interface CanvasPalette {
   readonly diffStripRemoved: string;
 }
 
-function buildTokens(palette: CanvasPalette) {
+function buildTokens(
+  palette: CanvasPalette,
+  category: CategoryPalette,
+): CanvasTokens {
   return {
     bg: {
       editor: palette.editor,
@@ -125,26 +128,107 @@ function buildTokens(palette: CanvasPalette) {
       stripAdded: palette.diffStripAdded,
       stripRemoved: palette.diffStripRemoved,
     },
+    category,
   };
 }
 
-export type CanvasTokens = ReturnType<typeof buildTokens>;
+/**
+ * Semantic token groups returned by `useHostTheme()` and baked into
+ * `canvasTokens(Light)`. Mirrors the SDK's `CanvasTokens` field-for-field,
+ * including the per-theme `category` table (issue #2).
+ */
+export interface CanvasTokens {
+  bg: { editor: string; chrome: string; elevated: string };
+  text: {
+    primary: string;
+    secondary: string;
+    tertiary: string;
+    quaternary: string;
+    link: string;
+    onAccent: string;
+  };
+  stroke: { primary: string; secondary: string; tertiary: string };
+  fill: {
+    primary: string;
+    secondary: string;
+    tertiary: string;
+    quaternary: string;
+  };
+  accent: { primary: string; control: string; controlHover: string };
+  diff: {
+    insertedLine: string;
+    removedLine: string;
+    stripAdded: string;
+    stripRemoved: string;
+  };
+  category: CategoryPalette;
+}
 
-export const canvasTokens = buildTokens(canvasPaletteDark);
-export const canvasTokensLight = buildTokens(canvasPaletteLight);
+/**
+ * Shared category hues used by `Swatch`, `UsageBar` segments, and any canvas
+ * that reads `useHostTheme().category.<hue>`. Same nine-key union as the SDK's
+ * `Color`; the insertion order is the canonical category order.
+ */
+export type Color =
+  | 'gray'
+  | 'purple'
+  | 'green'
+  | 'yellow'
+  | 'cyan'
+  | 'pink'
+  | 'blue'
+  | 'orange'
+  | 'red';
 
-/** Shared 7-hue category palette for `Swatch`, `UsageBar`, etc. */
-export const colorPalette = {
-  gray: '#8888A8E0',
+export type CategoryPalette = Readonly<Record<Color, string>>;
+
+/**
+ * Chromatic hues are shared by both themes and aligned with the chart palette
+ * (the real SDK's exact per-theme hexes are not published in its `.d.ts`).
+ * `gray` follows the SDK rule of reusing the palette's `foregroundTertiary`,
+ * so it is the one hue that visibly flips between dark and light.
+ */
+const categoryHues = {
   purple: '#7B64B8F0',
   green: '#1F8A65E8',
   yellow: '#E8C030E0',
+  cyan: '#2A9A8AE0',
   pink: '#C85898E0',
   blue: '#2E79B5E0',
   orange: '#F0A040E0',
+  red: '#C04848E0',
 } as const;
 
-export type Color = keyof typeof colorPalette;
+function buildCategoryPalette(palette: CanvasPalette): CategoryPalette {
+  // Listed explicitly so key order matches the canonical `Color` order.
+  return {
+    gray: palette.foregroundTertiary,
+    purple: categoryHues.purple,
+    green: categoryHues.green,
+    yellow: categoryHues.yellow,
+    cyan: categoryHues.cyan,
+    pink: categoryHues.pink,
+    blue: categoryHues.blue,
+    orange: categoryHues.orange,
+    red: categoryHues.red,
+  };
+}
+
+export const categoryPaletteDark = buildCategoryPalette(canvasPaletteDark);
+export const categoryPaletteLight = buildCategoryPalette(canvasPaletteLight);
+
+/**
+ * Legacy name kept for back-compat with the SDK, which also exports it; it is
+ * the dark table. React consumers should read `useHostTheme().category` so
+ * the hue flips with the host theme.
+ */
+export const colorPalette: CategoryPalette = categoryPaletteDark;
+
+export const canvasTokens = buildTokens(canvasPaletteDark, categoryPaletteDark);
+export const canvasTokensLight = buildTokens(
+  canvasPaletteLight,
+  categoryPaletteLight,
+);
 
 /** Auto-color rotation for `UsageBar` segments without an explicit color. */
 export const usageColorSequence: readonly Color[] = [

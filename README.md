@@ -114,8 +114,8 @@ The shim implements the **full public `cursor/canvas` surface**:
 - Rich: `Swatch`, `UsageBar`, `CollapsibleSection`, `TodoList`/`TodoListCard`,
   `DiffView`/`DiffStats`, `computeDAGLayout`
 - Hooks: `useCanvasState`, `useHostTheme`, `useCanvasAction`
-- Tokens: `colorPalette`, `usageColorSequence`, `canvasTokens(Light)`,
-  `canvasPalette(Dark|Light)`
+- Tokens: `colorPalette`, `categoryPalette(Dark|Light)`,
+  `usageColorSequence`, `canvasTokens(Light)`, `canvasPalette(Dark|Light)`
 
 Known fidelity gaps (behavior is reproduced, not the exact renderer):
 `DiffView` skips Shiki syntax highlighting (plain-text fallback), and

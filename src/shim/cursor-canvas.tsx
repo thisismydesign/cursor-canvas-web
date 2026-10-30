@@ -38,12 +38,7 @@ import {
   Title,
 } from '@mantine/core';
 
-import {
-  colorPalette,
-  toneColor,
-  usageColorSequence,
-  type Color,
-} from './theme';
+import { toneColor, usageColorSequence, type Color } from './theme';
 import { useHostTheme } from './use-tokens';
 
 /* --------------------------------------------------------------- re-exports */
@@ -58,6 +53,8 @@ export {
   canvasPaletteLight,
   canvasTokens,
   canvasTokensLight,
+  categoryPaletteDark,
+  categoryPaletteLight,
   colorPalette,
   usageColorSequence,
 } from './theme';
@@ -65,6 +62,7 @@ export type {
   CanvasPalette,
   CanvasTokens,
   CanvasHostTheme,
+  CategoryPalette,
   Color,
 } from './theme';
 export { BarChart, LineChart, PieChart, reshapeLineChartData } from './charts';
@@ -930,6 +928,9 @@ export interface SwatchProps {
   style?: CSSProperties;
 }
 export function Swatch({ color, style }: SwatchProps) {
+  // Read the themed table (not the static `colorPalette`) so a swatch and a
+  // `UsageBar` segment for the same hue stay coherent across light/dark.
+  const theme = useHostTheme();
   return (
     <span
       style={{
@@ -937,7 +938,7 @@ export function Swatch({ color, style }: SwatchProps) {
         width: 14,
         height: 14,
         borderRadius: 4,
-        background: colorPalette[color],
+        background: theme.category[color],
         flex: '0 0 auto',
         ...style,
       }}
@@ -994,7 +995,7 @@ export function UsageBar({
               ? segment.value
               : 0;
           const color =
-            colorPalette[
+            theme.category[
               segment.color ??
                 usageColorSequence[index % usageColorSequence.length]
             ];
