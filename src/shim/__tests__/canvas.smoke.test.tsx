@@ -61,16 +61,26 @@ describe('DemoCanvas showcase', () => {
   });
 
   it('shows charts and callouts on the default tab', () => {
-    renderWithProvider(<DemoCanvas />);
+    const { container } = renderWithProvider(<DemoCanvas />);
 
-    // LineChart / BarChart / PieChart cards (chart bodies do not render in
-    // jsdom, so assert the card headers that frame them).
+    // Card headers framing the LineChart / BarChart / PieChart.
     expect(screen.getByText('Latency (ms)')).toBeInTheDocument();
     expect(screen.getByText('Requests by source')).toBeInTheDocument();
     expect(screen.getByText('Test outcomes')).toBeInTheDocument();
-    // Callout tones.
-    expect(screen.getByText('Deployed')).toBeInTheDocument();
-    expect(screen.getByText('Failing')).toBeInTheDocument();
+    // The test setup gives elements a real size, so Recharts draws the chart
+    // bodies too: one surface per chart, with lines, bars, and pie sectors.
+    expect(container.querySelectorAll('svg.recharts-surface')).toHaveLength(3);
+    expect(
+      container.querySelectorAll('.recharts-line-curve').length,
+    ).toBeGreaterThan(0);
+    expect(
+      container.querySelectorAll('.recharts-bar-rectangle').length,
+    ).toBeGreaterThan(0);
+    expect(container.querySelectorAll('.recharts-pie-sector')).toHaveLength(3);
+    // Callout tones. Query by role: the pie chart also renders a "Failing"
+    // label, so a bare text query would be ambiguous.
+    expect(screen.getByRole('alert', { name: 'Deployed' })).toBeInTheDocument();
+    expect(screen.getByRole('alert', { name: 'Failing' })).toBeInTheDocument();
   });
 
   it('reveals the data Table when the "table" tab is selected', () => {
