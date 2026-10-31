@@ -3,6 +3,7 @@ import globals from 'globals';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
+import prettierRecommended from 'eslint-plugin-prettier/recommended';
 
 export default tseslint.config(
   { ignores: ['dist'] },
@@ -40,4 +41,8 @@ export default tseslint.config(
       globals: { ...globals.browser, ...globals.node },
     },
   },
+  // Last so it wins: turns off ESLint's own stylistic rules that would fight
+  // Prettier (eslint-config-prettier) and reports any Prettier diff as a lint
+  // error (eslint-plugin-prettier), so `pnpm lint` and CI catch formatting.
+  prettierRecommended,
 );

@@ -110,7 +110,9 @@ describe('DemoCanvas showcase', () => {
     expect(
       screen.getByText('export default function Showcase() {'),
     ).toBeInTheDocument();
-    expect(screen.getByText('export default function Demo() {')).toBeInTheDocument();
+    expect(
+      screen.getByText('export default function Demo() {'),
+    ).toBeInTheDocument();
     expect(screen.getByText('+1')).toBeInTheDocument();
     expect(screen.getByText('-1')).toBeInTheDocument();
   });
